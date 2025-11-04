@@ -1,0 +1,84 @@
+.patient-login-container {
+  background: linear-gradient(135deg, #0c2b4e, #1a3d64, #1d546c);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Poppins", sans-serif;
+}
+
+.login-card {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  padding: 40px 50px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  text-align: center;
+  width: 380px;
+  color: #fff;
+}
+
+.login-card h2 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  color: #f4f4f4;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: #9cbad6;
+  margin-bottom: 25px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+label {
+  text-align: left;
+  font-size: 0.9rem;
+  color: #dbeafe;
+}
+
+input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #93c5fd;
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 0.95rem;
+}
+
+input::placeholder {
+  color: #a7bccc;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: linear-gradient(90deg, #2563eb, #1e40af);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #ef4444;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}

@@ -1,0 +1,212 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  background: linear-gradient(135deg, #0c2b4e, #1a3d64, #1d546c);
+  font-family: "Poppins", sans-serif;
+}
+
+/* === Dashboard Layout === */
+.dashboard-container {
+  min-height: 100vh;
+  width: 100%;
+  padding: 20px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}
+
+.dashboard-header {
+  text-align: center;
+  width: 100%;
+  margin-bottom: 40px;
+  padding: 20px 0;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  z-index: 1000;
+  position: relative;
+}
+
+.dashboard-title {
+  color: #f4f4f4 !important;
+  font-size: 2.8rem !important;
+  margin-bottom: 10px !important;
+  font-weight: 700 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-subtitle {
+  color: #9cbad6 !important;
+  font-size: 1.2rem !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+
+/* === Patient Grid === */
+.patient-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 35px;
+  justify-items: center;
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+
+
+
+.patient-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 18px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+
+  /* ✅ Fix shape and internal layout */
+  width: 100%;
+  max-width: 380px;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden; /* ✅ Prevent chart overflow */
+}
+
+
+.patient-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+}
+
+/* Patient Title */
+.patient-card h2 {
+    color: #f4f4f4;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+/* Vitals Section */
+.vitals p {
+    margin: 5px 0;
+    font-size: 15px;
+    color: #e5e7eb;
+}
+
+.vitals p b {
+    color: #f9fafb;
+}
+
+.timestamp {
+    font-size: 13px;
+    color: #9cbad6;
+    margin-top: 10px;
+}
+
+/* Status Color Indicators (Glow effect) */
+.patient-card.green {
+    border-top: 6px solid #22c55e;
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+}
+
+.patient-card.yellow {
+    border-top: 6px solid #eab308;
+    box-shadow: 0 0 15px rgba(234, 179, 8, 0.4);
+}
+
+.patient-card.red {
+    border-top: 6px solid #ef4444;
+    box-shadow: 0 0 18px rgba(239, 68, 68, 0.5);
+}
+
+/* Subtle animated glow for warning and critical */
+@keyframes pulseRed {
+    0%, 100% {
+        box-shadow: 0 0 18px rgba(239, 68, 68, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(239, 68, 68, 0.7);
+    }
+}
+.patient-card.red {
+    animation: pulseRed 3s infinite;
+}
+
+@keyframes pulseYellow {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(234, 179, 8, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(234, 179, 8, 0.6);
+    }
+}
+.patient-card.yellow {
+    animation: pulseYellow 4s infinite;
+}
+
+/* Chart Styling */
+.chart {
+  margin-top: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 4px;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.4);
+  height: 120px;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chart:hover {
+  box-shadow: inset 0 0 25px rgba(255, 153, 0, 0.3);
+}
+
+/* Loading and Error States */
+.centered {
+    text-align: center;
+    margin-top: 150px;
+    font-size: 18px;
+    color: #f4f4f4;
+}
+
+.error {
+    color: #ef4444;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 25px 15px;
+    }
+
+    .dashboard-title {
+        font-size: 2rem !important;
+    }
+
+    .dashboard-subtitle {
+        font-size: 1rem !important;
+        margin-bottom: 20px;
+    }
+
+    .patient-grid {
+        grid-template-columns: 1fr;
+    }
+}

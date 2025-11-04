@@ -1,0 +1,47 @@
+.patient-dashboard {
+  background: linear-gradient(135deg, #0c2b4e, #1a3d64, #1d546c);
+  min-height: 100vh;
+  color: white;
+  padding: 40px;
+  text-align: center;
+}
+
+.title {
+  font-size: 2rem;
+  color: #ffffff;
+}
+
+.subtitle {
+  color: #9cbad6;
+  margin-bottom: 30px;
+}
+
+.vitals-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 25px;
+  margin: 0 auto 40px;
+  width: 350px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.vitals-card p {
+  margin: 10px 0;
+  font-size: 16px;
+  color: #e5e7eb;
+}
+
+.timestamp {
+  color: #9cbad6;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.chart {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 10px;
+  margin: 0 auto;
+  width: 80%;
+  max-width: 600px;
+}
