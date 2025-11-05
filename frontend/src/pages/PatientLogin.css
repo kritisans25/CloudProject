@@ -7,17 +7,25 @@
   font-family: "Poppins", sans-serif;
 }
 
+/* Card */
 .login-card {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.07);
   border-radius: 18px;
-  padding: 40px 50px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+  padding: 45px 55px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(10px);
   text-align: center;
   width: 380px;
   color: #fff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+.login-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* Titles */
 .login-card h2 {
   font-size: 1.8rem;
   margin-bottom: 10px;
@@ -30,20 +38,15 @@
   margin-bottom: 25px;
 }
 
+/* Inputs */
 form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-label {
-  text-align: left;
-  font-size: 0.9rem;
-  color: #dbeafe;
+  gap: 15px;
 }
 
 input {
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-radius: 8px;
   border: 1px solid #93c5fd;
   outline: none;
@@ -56,25 +59,22 @@ input::placeholder {
   color: #a7bccc;
 }
 
+/* Button */
 button {
   margin-top: 10px;
-  padding: 10px;
+  padding: 12px;
   border: none;
   border-radius: 8px;
   background: linear-gradient(90deg, #3b82f6, #2563eb);
   color: #fff;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.3s;
+  transition: 0.3s ease;
 }
 
 button:hover {
   background: linear-gradient(90deg, #2563eb, #1e40af);
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  transform: translateY(-2px);
 }
 
 .error {

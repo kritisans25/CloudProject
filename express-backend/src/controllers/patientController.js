@@ -1,17 +1,31 @@
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 exports.patientLogin = (req, res) => {
-    const { email, password } = req.body;
+  console.log("Request body:", req.body);
+  const { email, password } = req.body;
 
-    if (email === "patient@test.com" && password === "1234") {
-        const token = jwt.sign(
-            { role: "patient", email },
-            process.env.JWT_SECRET,
-            { expiresIn: "2h" }
-        );
+  // ✅ Compare credentials from .env
+  if (email === process.env.PATIENT_EMAIL && password === process.env.PATIENT_PASSWORD) {
+    console.log(`✅ Patient login successful for ${email}`);
 
-        return res.json({ message: "Patient login successful ✅", token });
-    } else {
-        return res.status(401).json({ message: "Invalid credentials" });
-    }
+    // Create a token for the patient
+    const token = jwt.sign(
+      {
+        role: "patient",
+        email,
+        patientId: process.env.PATIENT_ID,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "2h" }
+    );
+
+    return res.json({
+      message: "Patient login successful ✅",
+      token,
+    });
+  } else {
+    console.log("❌ Invalid credentials entered.");
+    return res.status(401).json({ message: "Invalid credentials" });
+  }
 };

@@ -1,158 +1,119 @@
 import React, { useEffect, useState } from "react";
 import "./DoctorDashboard.css";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
+import { io } from "socket.io-client";
+import axios from "axios";
+import VitalsCard from "../components/VitalsCard"; // ✅ Reusable card
+
+const socket = io("http://localhost:5000", { transports: ["websocket"] });
 
 function DoctorDashboard() {
   const [vitals, setVitals] = useState([]);
   const [history, setHistory] = useState({});
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // ✅ Fetch from backend API (real-time)
-  const fetchVitals = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("token"); // JWT from login
-      const res = await fetch("http://localhost:5000/api/doctor/vitals", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  const doctorEmail = localStorage.getItem("doctorEmail") || "doctor@test.com";
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to fetch vitals");
-
-      // ✅ Normalize patient IDs
-      const normalized = data.map((p) => ({
-        ...p,
-        patientId: p.patientId || p.patientid || "Unknown",
-      }));
-
-      // ✅ Store history for mini chart (last 15 readings)
-      const updatedHistory = { ...history };
-      normalized.forEach((p) => {
-        if (!updatedHistory[p.patientId]) updatedHistory[p.patientId] = [];
-        updatedHistory[p.patientId] = [...updatedHistory[p.patientId], p].slice(-15);
-      });
-
-      setVitals(normalized);
-      setHistory(updatedHistory);
-      setError("");
-    } catch (err) {
-      console.error("❌ Error fetching vitals:", err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Auto-refresh every 5 seconds
+  // ✅ Fetch from DynamoDB (only latest per patient)
   useEffect(() => {
-    fetchVitals();
-    const interval = setInterval(fetchVitals, 5000);
-    return () => clearInterval(interval);
-  }, []);
+    const fetchVitals = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:5000/api/doctor/vitals/${doctorEmail}`
+        );
+        const data = res.data.items || [];
 
-  const getStatus = (v) => {
-    if (v.heartRate < 60 || v.heartRate > 110 || v.oxygenLevel < 94) return "red";
-    if (v.heartRate > 90 || v.sugar > 130) return "yellow";
-    return "green";
-  };
+        // ✅ Keep only the latest record per patientId
+        const latestVitals = Object.values(
+          data.reduce((acc, item) => {
+            const pid = item.patientId;
+            if (!acc[pid] || Number(item.timestamp) > Number(acc[pid].timestamp)) {
+              acc[pid] = item;
+            }
+            return acc;
+          }, {})
+        );
+
+        setVitals(latestVitals);
+
+        // ✅ Prepare historical chart data
+        const grouped = data.reduce((acc, item) => {
+          if (!acc[item.patientId]) acc[item.patientId] = [];
+          acc[item.patientId].push(item);
+          return acc;
+        }, {});
+        setHistory(grouped);
+      } catch (err) {
+        console.error("❌ Error fetching vitals:", err);
+        setError("Failed to fetch patient data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVitals();
+  }, [doctorEmail]);
+
+  // ✅ Real-time updates via WebSocket
+  useEffect(() => {
+    socket.emit("doctorJoin", doctorEmail);
+    console.log(`🧠 Doctor joined private room: ${doctorEmail}`);
+
+    socket.on("vitalsUpdate", (data) => {
+      console.log("📡 Live vitals received:", data);
+
+      // Update latest vitals table
+      setVitals((prev) => {
+        const exists = prev.find((p) => p.patientId === data.patientId);
+        if (exists) {
+          return prev.map((p) =>
+            p.patientId === data.patientId ? data : p
+          );
+        } else {
+          return [...prev, data];
+        }
+      });
+
+      // Update chart history
+      setHistory((prev) => {
+        const updated = { ...prev };
+        if (!updated[data.patientId]) updated[data.patientId] = [];
+        updated[data.patientId] = [...updated[data.patientId], data].slice(-20);
+        return updated;
+      });
+    });
+
+    return () => {
+      socket.off("vitalsUpdate");
+      console.log("🧹 Doctor socket listener cleaned up");
+    };
+  }, [doctorEmail]);
 
   if (loading) return <div className="centered">Loading vitals...</div>;
   if (error) return <div className="error">⚠ {error}</div>;
 
   return (
     <div className="dashboard-container">
-      {/* Sticky Header */}
       <div className="dashboard-header">
         <h1 className="dashboard-title">Doctor Dashboard 🩺</h1>
-        <p className="dashboard-subtitle">
-          Live Monitoring – Latest Patient Vitals
-        </p>
+        <p className="dashboard-subtitle">Live + Historical Patient Monitoring</p>
       </div>
 
-      {/* Patient Cards */}
       <div className="patient-grid">
-        {vitals.map((v) => {
-          const colorClass = getStatus(v);
-          return (
-            <div key={v.patientId} className={`patient-card ${colorClass}`}>
-              <h2>{v.patientId}</h2>
-
-              <div className="vitals">
-                <p>❤️ <b>Heart Rate:</b> {v.heartRate} bpm</p>
-                <p>🩸 <b>Blood Pressure:</b> {v.bp_sys}/{v.bp_dia}</p>
-                <p>🌬️ <b>Oxygen Level:</b> {v.oxygenLevel}%</p>
-                <p>🍬 <b>Sugar:</b> {v.sugar} mg/dL</p>
-                <p>🌡️ <b>Temperature:</b> {v.temperature} °F</p>
-                <p className="timestamp">
-                  ⏱️ {new Date(v.timestamp).toLocaleTimeString()}
-                </p>
-              </div>
-
-              {/* Heart Rate Mini Trend */}
-              <div className="chart">
-                <ResponsiveContainer width="100%" height={150}>
-                  <LineChart data={history[v.patientId] || []}>
-                    <defs>
-                      <linearGradient
-                        id={`color-${v.patientId}`}
-                        x1="0"
-                        y1="0"
-                        x2="1"
-                        y2="0"
-                      >
-                        <stop offset="0%" stopColor="#ff7b47" stopOpacity={0.8} />
-                        <stop offset="100%" stopColor="#ffb547" stopOpacity={0.8} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="rgba(255,255,255,0.08)"
-                    />
-                    <XAxis dataKey="timestamp" hide />
-                    <YAxis domain={[50, 130]} hide />
-                    <Tooltip
-                      labelFormatter={(t) => new Date(t).toLocaleTimeString()}
-                      contentStyle={{
-                        backgroundColor: "rgba(0,0,0,0.7)",
-                        borderRadius: "8px",
-                        border: "none",
-                        color: "#fff",
-                      }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="heartRate"
-                      stroke={`url(#color-${v.patientId})`}
-                      strokeWidth={3}
-                      dot={{
-                        r: 3,
-                        stroke: "#ffb547",
-                        strokeWidth: 1,
-                        fill: "#ff7b47",
-                      }}
-                      activeDot={{ r: 5, fill: "#ff9447" }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          );
-        })}
+        {vitals.length === 0 ? (
+          <p className="centered">No patient data yet...</p>
+        ) : (
+          vitals.map((v) => (
+            <VitalsCard
+              key={v.patientId}
+              vitals={v}
+              history={history[v.patientId] || []}
+            />
+          ))
+        )}
       </div>
     </div>
   );
 }
 
 export default DoctorDashboard;
-

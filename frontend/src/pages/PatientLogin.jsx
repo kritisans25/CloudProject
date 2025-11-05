@@ -6,12 +6,10 @@ function PatientLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
 
     try {
@@ -23,52 +21,44 @@ function PatientLogin() {
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message || "Login failed");
-
-      // ✅ Save token in localStorage
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("patientId", data.patientId);
-
-      alert("Login successful ✅");
-      navigate("/patient-dashboard"); // redirect to dashboard
+      if (res.ok) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("patientId", data.patientId);
+        navigate("/patient-dashboard");
+      } else {
+        setError(data.message || "Invalid credentials");
+      }
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      console.error(err);
+      setError("Server error, please try again later");
     }
   };
 
   return (
     <div className="patient-login-container">
       <div className="login-card">
-        <h2>Patient Login 🧑‍⚕️</h2>
-        <p className="subtitle">Access your vitals in real-time</p>
+        <h2>Patient Login ❤️</h2>
+        <p className="subtitle">Access your live health data securely</p>
 
-        <form onSubmit={handleSubmit}>
-          <label>Email</label>
+        <form onSubmit={handleLogin}>
           <input
             type="email"
-            placeholder="patient1@mail.com"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-
-          <label>Password</label>
           <input
             type="password"
-            placeholder="Enter your password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-
-          {error && <p className="error">{error}</p>}
-
-          <button type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </button>
+          <button type="submit">Login</button>
         </form>
+
+        {error && <p className="error">{error}</p>}
       </div>
     </div>
   );

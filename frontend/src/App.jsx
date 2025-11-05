@@ -1,21 +1,27 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import RoleSelection from "./pages/RoleSelection";
 import DoctorLogin from "./pages/DoctorLogin";
-import DoctorDashboard from "./pages/DoctorDashboard";
 import PatientLogin from "./pages/PatientLogin";
-import PatientDashboard from "./pages/PatientDashboard"; // (we’ll make this next)
-
-
-
+import DoctorDashboard from "./pages/DoctorDashboard";
+import PatientDashboard from "./pages/PatientDashboard";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<DoctorLogin />} />
-        <Route path="/dashboard" element={<DoctorDashboard />} />
+        {/* Default route: Role Selection */}
+        <Route path="/" element={<RoleSelection />} />
+
+        {/* Doctor Routes */}
+        <Route path="/doctor-login" element={<DoctorLogin />} />
+        <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
+
+        {/* Patient Routes */}
         <Route path="/patient-login" element={<PatientLogin />} />
         <Route path="/patient-dashboard" element={<PatientDashboard />} />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
   );

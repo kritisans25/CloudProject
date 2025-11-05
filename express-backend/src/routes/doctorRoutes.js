@@ -1,30 +1,61 @@
+// routes/doctorRoutes.js
 const express = require("express");
 const router = express.Router();
-const doctorController = require("../controllers/doctorController");
-const { authenticateUser, authorizeRole } = require("../middleware/authMiddleware");
+const { ScanCommand } = require("@aws-sdk/lib-dynamodb");
+const dynamo = require("../dynamoClient");
 
-// ✅ Doctor login route
-router.post("/login", doctorController.doctorLogin);
 
-// ✅ Generate mock vitals for 4 patients (temporary)
-router.get("/vitals", authenticateUser, authorizeRole("doctor"), async (req, res) => {
-  try {
-    const patients = ["patient01", "patient02", "patient03", "patient04"];
-    const vitals = patients.map((id) => ({
-      patientId: id,
-      heartRate: Math.floor(60 + Math.random() * 50),
-      bp_sys: Math.floor(100 + Math.random() * 30),
-      bp_dia: Math.floor(60 + Math.random() * 20),
-      oxygenLevel: Math.floor(92 + Math.random() * 8),
-      sugar: Math.floor(80 + Math.random() * 60),
-      temperature: (97 + Math.random() * 2).toFixed(1),
-      timestamp: Date.now(),
-    }));
-    res.json(vitals);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching vitals" });
+// ✅ Doctor Login Route (Mock Authentication)
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  // Temporary login credentials
+  const doctors = [
+    { email: "doctor@test.com", password: "1234" },
+    { email: "doctor2@test.com", password: "1234" },
+  ];
+
+  const doctor = doctors.find(
+    (d) => d.email === email && d.password === password
+  );
+
+  if (!doctor) {
+    return res
+      .status(401)
+      .json({ success: false, message: "Invalid credentials" });
   }
+
+  res.json({
+    success: true,
+    message: "Login successful",
+    doctorEmail: doctor.email,
+  });
 });
 
+
+// ✅ Fetch all vitals for a specific doctor from DynamoDB
+router.get("/vitals/:doctorEmail", async (req, res) => {
+  const { doctorEmail } = req.params;
+
+  try {
+    const params = {
+      TableName: "PatientVitals",
+      FilterExpression: "doctorEmail = :d",
+      ExpressionAttributeValues: {
+        ":d": doctorEmail,
+      },
+    };
+
+    const data = await dynamo.send(new ScanCommand(params));
+
+    res.json({
+      success: true,
+      items: data.Items || [],
+    });
+  } catch (err) {
+    console.error("❌ Error fetching vitals:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 module.exports = router;

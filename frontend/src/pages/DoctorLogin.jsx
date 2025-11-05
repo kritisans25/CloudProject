@@ -6,13 +6,11 @@ function DoctorLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
     try {
       const res = await fetch("http://localhost:5000/api/doctor/login", {
@@ -25,21 +23,20 @@ function DoctorLogin() {
 
       if (res.ok) {
         localStorage.setItem("token", data.token);
-        navigate("/dashboard");
+        navigate("/doctor-dashboard"); // ✅ Correct path
       } else {
         setError(data.message || "Invalid credentials");
       }
     } catch (err) {
-      setError("Server error. Please try again later.");
-    } finally {
-      setLoading(false);
+      console.error(err);
+      setError("Server error, please try again later");
     }
   };
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <h2>Doctor Login</h2>
+      <div className="login-box">
+        <h2 className="login-title">Doctor Login 🩺</h2>
         <form onSubmit={handleLogin}>
           <input
             type="email"
@@ -55,11 +52,9 @@ function DoctorLogin() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          {error && <p className="error">{error}</p>}
-          <button type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </button>
+          <button type="submit" className="login-btn">Login</button>
         </form>
+        {error && <p className="error">{error}</p>}
       </div>
     </div>
   );
