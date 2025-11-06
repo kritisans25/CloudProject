@@ -11,7 +11,7 @@ const dynamo = require("./dynamoClient");
 // Initialize Express
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({ origin: "*", credentials: true }));
 
 // Import routes
 const doctorRoutes = require("./routes/doctorRoutes");
@@ -22,7 +22,7 @@ app.use("/api/patient", patientRoutes);
 // Create HTTP + WebSocket server
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: "http://localhost:5173", methods: ["GET", "POST"] },
+  cors: { origin: "*", methods: ["GET", "POST"] },
 });
 
 // Initialize SNS client
@@ -159,4 +159,5 @@ Health Monitoring System 🏥
 
 // Start the server
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+server.listen(PORT, "0.0.0.0", () => console.log(`✅ Server running on port ${PORT}`));
+

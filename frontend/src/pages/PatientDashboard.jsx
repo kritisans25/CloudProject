@@ -12,7 +12,11 @@ import {
 import { io } from "socket.io-client";
 
 // Connect socket
-const socket = io("http://localhost:5000");
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const socket = io(API_BASE, {
+  transports: ["websocket"], // ensures stable connection
+});
+
 
 function PatientDashboard() {
   const [vitals, setVitals] = useState(null);

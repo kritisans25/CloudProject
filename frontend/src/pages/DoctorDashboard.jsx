@@ -3,8 +3,12 @@ import "./DoctorDashboard.css";
 import { io } from "socket.io-client";
 import axios from "axios";
 import VitalsCard from "../components/VitalsCard"; // ✅ Reusable card
+// Connect socket
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const socket = io(API_BASE, {
+  transports: ["websocket"], // ensures stable connection
+});
 
-const socket = io("http://localhost:5000", { transports: ["websocket"] });
 
 function DoctorDashboard() {
   const [vitals, setVitals] = useState([]);
@@ -18,9 +22,9 @@ function DoctorDashboard() {
   useEffect(() => {
     const fetchVitals = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:5000/api/doctor/vitals/${doctorEmail}`
-        );
+        const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+        const res = await axios.get(`${API_BASE}/api/doctor/vitals/${doctorEmail}`);
+
         const data = res.data.items || [];
 
         // ✅ Keep only the latest record per patientId
