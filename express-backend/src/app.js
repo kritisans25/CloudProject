@@ -90,8 +90,9 @@ io.on("connection", (socket) => {
     const oxy = Number(data.oxygenLevel);
     const sugar = Number(data.sugar);
 
-    const abnormal = true; // 🔥 Force SNS alert for testing
+    // const abnormal = true; // 🔥 Force SNS alert for testing
 
+    const abnormal = hr > 120 || oxy < 90 || sys > 150 || sugar > 180;
 
     if (abnormal) {
       console.log("🚨 Abnormal vitals detected — preparing SNS alert...");
