@@ -92,7 +92,7 @@ io.on("connection", (socket) => {
 
     // const abnormal = true; // 🔥 Force SNS alert for testing
 
-    const abnormal = hr > 120 || oxy < 90 || sys > 150 || sugar > 180;
+    const abnormal = hr > 120 || oxy < 90 || sys > 150 || sugar > 120;
 
     if (abnormal) {
       console.log("🚨 Abnormal vitals detected — preparing SNS alert...");
@@ -114,11 +114,33 @@ Abnormal vitals detected:
 ⚠️ Please check the patient immediately via the dashboard.
         `;
 
+        const messagePatient = `
+⚠️ HEALTH ALERT ⚠️
+
+Dear ${data.patientId},
+
+Our system detected abnormal health readings in your latest vitals.
+
+Please report to the nearest hospital as soon as possible or contact your assigned doctor: ${doctorEmail}.
+
+Stay safe,
+Health Monitoring System 🏥
+    `;
+    
         await sns.send(
           new PublishCommand({
             TopicArn: "arn:aws:sns:us-east-1:072244248039:CriticalHealthAlerts", // your SNS topic ARN
             Message: message,
             Subject: `⚠️ ALERT for ${data.patientId} - Abnormal Vitals`,
+          })
+        );
+
+        // Notify Patient
+        await sns.send(
+          new PublishCommand({
+            TopicArn: "arn:aws:sns:us-east-1:072244248039:PatientAlertHealth",
+            Message: messagePatient,
+            Subject: `⚠️ Important Health Notification`,
           })
         );
 
