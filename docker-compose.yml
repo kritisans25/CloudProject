@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./express-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+    restart: always
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always
+
+  simulator:
+    build: ./simulator
+    depends_on:
+      - backend
+    restart: on-failure
